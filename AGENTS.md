@@ -5,7 +5,7 @@
 ## 这是什么仓库
 
 `xx-zhang/CPlusPlusThings-Guide`：C++ 知识体系 + 学习方法 + ROS2 架构映射的**交付仓库**。
-- 内容：`auxiliary/` 下 22 篇文档（00-21）+ `lessons/`；导航入口 = `auxiliary/README.md`，知识地图 = `auxiliary/07-场景体系总览.md`。
+- 内容：`auxiliary/` 下 26 篇文档（00-25）+ `lessons/`；导航入口 = `auxiliary/README.md`，知识地图 = `auxiliary/07-场景体系总览.md`；能力引擎 = `auxiliary/25-专家练习路径.md`。
 - 形态：也是 Obsidian vault（本机 `~/CPlusPlusThings-Guide`，已注册），README/文档均为纯 Markdown。
 - 关系：内容源是 `/home/user/CPlusPlusThings/auxiliary`（被 `rsync -a --delete` 同步过来），**修改一律改源再同步**，见下「同步流程」。
 
