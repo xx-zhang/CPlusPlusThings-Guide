@@ -5,14 +5,15 @@
 ## 这是什么仓库
 
 `xx-zhang/CPlusPlusThings-Guide`：C++ 知识体系 + 学习方法 + ROS2 架构映射的**交付仓库**。
-- 内容：`auxiliary/` 下 26 篇文档（00-25）+ `lessons/`；导航入口 = `auxiliary/README.md`，知识地图 = `auxiliary/07-场景体系总览.md`；能力引擎 = `auxiliary/25-专家练习路径.md`。
+- 内容：`auxiliary/` 下 27 篇文档（00-26）+ `lessons/`；导航入口 = `auxiliary/README.md`，知识地图 = `auxiliary/07-场景体系总览.md`；**骨架正身/入口 = `auxiliary/26-骨架总图与索引.md`**；能力引擎 = `auxiliary/25-专家练习路径.md`。
 - 形态：也是 Obsidian vault（本机 `~/CPlusPlusThings-Guide`，已注册），README/文档均为纯 Markdown。
 - 关系：内容源是 `/home/user/CPlusPlusThings/auxiliary`（被 `rsync -a --delete` 同步过来），**修改一律改源再同步**，见下「同步流程」。
 
 ## 用户目标（一切工作的校准器）
 
 1. 读 / 改 / 审 **AI 生成的 C++ 代码**（CAE/EDA 方向）。
-2. **对标未来 ROS2 架构与程序设计**（`auxiliary/15-19`），并进一步服务于**具身智能**（`auxiliary/21`：跨领域加固五轴 + C++ 侧高优先四项）。
+2. **对标未来 ROS2 架构与程序设计**（`auxiliary/15-19`），并进一步服务于**具身智能**（`auxiliary/21`）。
+4. **当前阶段：理论优先**——先把骨架打扎实（读 `00`→`01`→`26`），**暂不启动实践循环**（`25` 的 12 周计划待理论验收后再开）。
 3. 学习方式偏好：学的是**驾驭知识的能力**（六步实证法，见 03），反对无脑堆知识、反对知识收藏。
 
 ## 核心约定（改任何文档前必读，违反等于破坏体系）
