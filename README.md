@@ -44,6 +44,7 @@ auxiliary/lessons/01-翻译单元与链接.md   # 第 1 课（含自测题与已
 | `auxiliary/17-事件驱动与执行器并发体系.md`    | 回调/执行器/回调组（互斥 vs 可重入）· 阻塞=饿死 · 黄金规则：回调短小/非阻塞/不分配                              |
 | `auxiliary/18-零拷贝与实时安全体系.md`      | intra-process/loaned 零拷贝 · 回调零分配纪律 · jitter/实时 · 新建 vs 复用实测                                  |
 | `auxiliary/19-构建与插件体系.md`           | colcon/ament · nm / dlopen / 符号可见性 · pluginlib · ABI 铁律（同发行版同编译器）                           |         | 分层排查流水线（编译器→sanitizer→gdb→TSan）、现象→根因决策树、gdb 最小命令集                                              |
+| `auxiliary/20-领域进入方法论.md`       | ⭐ 领域进入 v2：七层阶梯 + 五问 + 三补（目标/激励/反馈）+ 8 条可检验标准 + 七步跟进；与 C++ 公理同构          |
 | `auxiliary/lessons/01-翻译单元与链接.md` | 第 1 课完整讲义（5 个可复制实验 + AI 代码的 3 个坑 + 自测题）                                                   |
 | `auxiliary/lessons/_TEMPLATE.md`  | 后续课程讲义模板                                                                                  |
 
