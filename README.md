@@ -31,6 +31,13 @@ auxiliary/lessons/01-翻译单元与链接.md   # 第 1 课（含自测题与已
 | `auxiliary/05-实验工具箱.md`           | 命令速查（看符号/布局/汇编/去虚化、检测 UB/ODR/数据竞争）+ 一键 `verify.sh` 模板                                     |
 | `auxiliary/06-仓库审计报告.md`          | 对原仓库 **33 条实测证伪的错误**（附复现命令），以及值得肯定的部分                                                     |
 | `auxiliary/08-记忆固化手册.md`          | ⭐ 记忆层：必背最小集（公理/符号/约定/UB 清单）、每课记忆卡、反例档案（已预填本会话实测 24 条）、间隔复习计划                  |
+| `auxiliary/07-场景体系总览.md`          | ⭐ **知识总地图**：14 个知识块离散点归位到「体系 → 公理 → 入口 → 记忆级别」 + 场景速查表 + 六大体系索引                       |
+| `auxiliary/09-异常与错误处理体系.md`       | 异常 vs 错误码决策、异常安全三级、noexcept 契约、copy-swap 强保证                                                         |
+| `auxiliary/10-容器与算法体系.md`         | 容器选型六问、布局定复杂度、迭代器失效推导（不背）、AI 容器坑清单                                                           |
+| `auxiliary/11-并发与内存模型体系.md`       | data race 判据、happens-before、atomic/mutex/cv 决策、TSan 用法（本机 `setarch -R` 修 ASLR）                              |
+| `auxiliary/12-模板与泛型体系.md`         | 模板=编译期类型函数、SFINAE/if constexpr/concepts 三层、move/forward 真相                                                   |
+| `auxiliary/13-内存与性能体系.md`         | 三个免费性能开关、布局/局部性/分配、调优五步、AoS vs SoA                                                                 |
+| `auxiliary/14-调试与排错体系.md`         | 分层排查流水线（编译器→sanitizer→gdb→TSan）、现象→根因决策树、gdb 最小命令集                                              |
 | `auxiliary/lessons/01-翻译单元与链接.md` | 第 1 课完整讲义（5 个可复制实验 + AI 代码的 3 个坑 + 自测题）                                                   |
 | `auxiliary/lessons/_TEMPLATE.md`  | 后续课程讲义模板                                                                                  |
 
