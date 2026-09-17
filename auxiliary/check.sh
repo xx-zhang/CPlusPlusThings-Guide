@@ -18,24 +18,30 @@ SSOT_OWNER='08-记忆固化手册.md'
 LEDGER_OWNER='26-骨架总图与索引.md'
 LEDGER_REF='26 §1.4'
 
-ok()   { printf "  \033[32m✅\033[0m %s\n" "$1"; }
-bad()  { printf "  \033[31m❌\033[0m %s\n" "$1"; FAIL=$((FAIL + 1)); }
+ok() { printf "  \033[32m✅\033[0m %s\n" "$1"; }
+bad() {
+  printf "  \033[31m❌\033[0m %s\n" "$1"
+  FAIL=$((FAIL + 1))
+}
 info() { printf "  \033[33m·\033[0m  %s\n" "$1"; }
 
 TOTAL=0
-section() { TOTAL=$((TOTAL + 1)); echo "═══ $TOTAL. $1 ═══"; }
+section() {
+  TOTAL=$((TOTAL + 1))
+  echo "═══ $TOTAL. $1 ═══"
+}
 
 section "交叉引用完整性（引用的文件必须存在）"
-grep -ohE '`(lessons/)?[0-9]{2}-[^`]*\.md`' --include='*.md' -r . | tr -d '`' | sort -u > "$TMP/refs"
+grep -ohE '`(lessons/)?[0-9]{2}-[^`]*\.md`' --include='*.md' -r . | tr -d '`' | sort -u >"$TMP/refs"
 missing=0
 while read -r f; do
   if [ ! -f "$f" ]; then
     bad "断链: $f"
     missing=1
   fi
-done < "$TMP/refs"
+done <"$TMP/refs"
 if [ "$missing" -eq 0 ]; then
-  ok "引用的 $(wc -l < "$TMP/refs") 个文件全部存在"
+  ok "引用的 $(wc -l <"$TMP/refs") 个文件全部存在"
 fi
 
 section "定理字段完整性（T1-T12 须有「失效前提」与「仓库章节」）"
@@ -93,7 +99,7 @@ else
 fi
 
 section "关键实测回归（EBO / 布局 / 常量折叠 / 窄化 / 交叉编译）"
-cat > "$TMP/reg.cpp" <<'EOF'
+cat >"$TMP/reg.cpp" <<'EOF'
 #include <cstdio>
 struct E {}; struct EBO : E { int x; }; struct NoEBO { E e; int x; };
 class A { public: char a; int b; };
@@ -113,7 +119,7 @@ else
   bad "回归程序编译失败"
 fi
 
-printf 'int main(){ int b{3.9}; return b; }\n' > "$TMP/nar.cpp"
+printf 'int main(){ int b{3.9}; return b; }\n' >"$TMP/nar.cpp"
 if g++ -std=c++17 -fsyntax-only "$TMP/nar.cpp" 2>/dev/null; then
   bad "常量窄化未报错（T8 / 22 §3 的结论失效）"
 else
@@ -144,7 +150,7 @@ else
 fi
 
 section "SSOT ③：确定性实测回归 —— 去虚化（T5）"
-cat > "$TMP/virt.cpp" <<'EOF'
+cat >"$TMP/virt.cpp" <<'EOF'
 struct Base { virtual ~Base() = default; virtual int f() const { return 1; } };
 struct Derived : Base { int f() const override { return 2; } };
 struct Sealed final : Base { int f() const override { return 3; } };
@@ -152,8 +158,8 @@ int call_ref(Base& b) { return b.f(); }
 int call_final(Sealed& s) { return s.f(); }
 EOF
 if g++ -std=c++17 -O2 -S "$TMP/virt.cpp" -o "$TMP/virt.s" 2>/dev/null; then
-  awk '/^_Z10call_finalR6Sealed:/,/^[[:space:]]*\.size/' "$TMP/virt.s" > "$TMP/cf.s"
-  awk '/^_Z8call_refR4Base:/,/^[[:space:]]*\.size/' "$TMP/virt.s" > "$TMP/cr.s"
+  awk '/^_Z10call_finalR6Sealed:/,/^[[:space:]]*\.size/' "$TMP/virt.s" >"$TMP/cf.s"
+  awk '/^_Z8call_refR4Base:/,/^[[:space:]]*\.size/' "$TMP/virt.s" >"$TMP/cr.s"
   if grep -qE 'movl[[:space:]]+\$3, %eax' "$TMP/cf.s" && ! grep -qE 'jmp[[:space:]]+\*' "$TMP/cf.s"; then
     ok "call_final(Sealed&) 完全去虚化（movl \$3, %eax，无间接跳转）"
   else
@@ -169,7 +175,7 @@ else
 fi
 
 section "SSOT ③：确定性实测回归 —— 弱符号（T6）"
-cat > "$TMP/w.cpp" <<'EOF'
+cat >"$TMP/w.cpp" <<'EOF'
 inline int add(int a, int b) { return a + b; }
 int x() { return add(1, 2); }
 EOF
@@ -182,6 +188,23 @@ if g++ -std=c++17 -c "$TMP/w.cpp" -o "$TMP/w.o" 2>/dev/null; then
 else
   bad "弱符号回归程序编译失败"
 fi
+
+section "一致性：27 的「设计意图」列必须挂靠 D1-D5 / 元原则（防复述塌缩）"
+if ! python3 - <<'PY2'
+import re, sys
+rows = [l for l in open('27-能力清单与设计意图.md', encoding='utf-8').read().splitlines()
+        if l.startswith('| **') and l.count('|') >= 6]
+bad = []
+for l in rows:
+    c = [x.strip() for x in l.split('|')]
+    if not re.search(r'(D[1-5]|元[123]|A5)', c[4]):
+        bad.append(c[1])
+if bad:
+    print("  \033[31m❌\033[0m 意图列未挂靠原则: " + "; ".join(bad))
+    sys.exit(1)
+print(f"  \033[32m✅\033[0m {len(rows)} 行的意图均挂靠到 D/元原则")
+PY2
+then FAIL=$((FAIL + 1)); fi
 
 echo
 if [ "$FAIL" -eq 0 ]; then
