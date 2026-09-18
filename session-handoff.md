@@ -13,7 +13,7 @@
 | 交付仓库 | `github.com/xx-zhang/CPlusPlusThings-Guide`（分支 `main`） | ✅ 已推送 |
 | Obsidian vault（WSL 侧，内容权威） | `~/CPlusPlusThings-Guide`（Linux Obsidian 已注册，id `ef320ff5bc7fdb90`） | ✅ 运行中 |
 | Obsidian vault（Windows 宿主镜像） | `D:\Obsidian\CPlusPlusThings-Guide`（已注册 id `c9a1f3e2b7d40815`；WSL 内 `/mnt/d/...`；同步器 `~/bin/vault-sync`） | ✅ 已建 |
-| 文档全集 | `auxiliary/00~28` + `lessons/01` + **`check.sh`** + 根 README/AGENTS/handoff/TODO | ✅ 29 篇 + 1 脚本 |
+| 文档全集 | `auxiliary/00~31` + `lessons/01` + **`check.sh`** + 根 README/AGENTS/handoff/TODO | ✅ 32 篇 + 1 脚本 |
 | 代码源副本 | `/home/user/CPlusPlusThings/auxiliary`（上游 Light-City/CPlusPlusThings 的克隆工作区） | ✅ 同步源 |
 
 **文档矩阵**（27 篇）：
@@ -53,6 +53,7 @@ d954c03  A2/A3 世界-语义关系校准（非并列公理；「公理」降级�
 | ROS2 用「15 锚文档 + 16-19 四补充」结构 | 已有语言内核全部有效，只补 4 个架构层缺口 |
 | 同步方向：`/home/user/CPlusPlusThings/auxiliary` → guide 仓库 | 保持单一内容源，防分叉 |
 | Windows 宿主 vault 是**镜像**而不是第二个内容源（哈希双向同步，WSL 胜出） | Windows Obsidian 打不开 `\\wsl.localhost\` vault（EISDIR），又不能让宿主侧变成可写第二真源 |
+（本次）`29` 具身智能技术栈覆盖审计（9 仓库扫描）· `30` 原仓库阅读导览（降心智负担）· `31` CppCoreGuidelines 中文导读（441 编号全索引 + P 全译 + 18 条互证 + 10 项缺口）
 
 ---
 
