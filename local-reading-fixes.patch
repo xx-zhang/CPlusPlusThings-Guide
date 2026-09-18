@@ -1,0 +1,232 @@
+diff --git a/basic_content/using/derived_base.cpp b/basic_content/using/derived_base.cpp
+index 4b25406..9eddadf 100644
+--- a/basic_content/using/derived_base.cpp
++++ b/basic_content/using/derived_base.cpp
+@@ -23,7 +23,7 @@ public:
+   virtual ~Base() {}
+   void test1() { cout << "Base test1..." << endl; }
+ 
+-private: // 私有
++protected: // 保护（原为 private，会导致 using Base::value 无法演示可访问性；已按 README 修正）
+   int value;
+ };
+ 
+diff --git a/learn_class/modern_cpp_30/reference/shape.h b/learn_class/modern_cpp_30/reference/shape.h
+index 84d9842..d05c9e1 100644
+--- a/learn_class/modern_cpp_30/reference/shape.h
++++ b/learn_class/modern_cpp_30/reference/shape.h
+@@ -2,13 +2,24 @@
+ #include <iostream>
+ using namespace std;
+ 
++// ── 本地修订（2026-09）─────────────────────────────────────────
++// ① 新增 shape_type + create_shape：smart_ptr 系列示例依赖这个工厂函数，原本缺失，
++//    导致 auto_scope / unique_ptr / unique_ptr_U 三个例子无法编译。
++// ② shape 的析构改为 virtual：使其成为"多态类型"——这是 dynamic_pointer_cast
++//    （内部用 dynamic_cast）的前提，见 01 的 T5。
++enum class shape_type { circle, triangle, rectangle };
++
+ class shape {
+ public:
+     shape() { cout << "shape" << endl; }
+ 
+-    ~shape() {
++    virtual ~shape() {          // ← 加 virtual（多态类型，dynamic_cast 的前提）
+         cout << "~shape" << endl;
+     }
++
++    // 本地修订：示例里通过 shape* 调 print()，因此需要虚函数
++    // 注意：必须**有函数体**（不能在别处写 `new shape` 时变成抽象类）
++    virtual void print() const { cout << "shape::print" << endl; }
+ };
+ 
+ class circle : public shape {
+@@ -19,6 +30,8 @@ public:
+     ~circle() {
+         cout << "~circle" << endl;
+     }
++
++    void print() const override { cout << "circle::print" << endl; }
+ };
+ 
+ class triangle : public shape {
+@@ -29,6 +42,8 @@ public:
+     ~triangle() {
+         cout << "~triangle" << endl;
+     }
++
++    void print() const override { cout << "triangle::print" << endl; }
+ };
+ 
+ class rectangle : public shape {
+@@ -38,4 +53,18 @@ public:
+     ~rectangle() {
+         cout << "~rectangle" << endl;
+     }
++
++    void print() const override { cout << "rectangle::print" << endl; }
+ };
++
++// 工厂：返回基类指针
++// （下面 switch 用的是 scoped enum 标签 `case shape_type::circle:`，合法；
++//   某些静态检查器会误判为"非 case 标签"，那是误报）（示例里用 auto_ptr<shape>/unique_ptr<shape> 接管）
++inline shape *create_shape(shape_type t) {
++    switch (t) {
++        case shape_type::circle:    { return new circle; }
++        case shape_type::triangle:  { return new triangle; }
++        case shape_type::rectangle: { return new rectangle; }
++    }
++    return nullptr;
++}
+diff --git a/learn_class/modern_cpp_30/smart_ptr/auto_scope.cpp b/learn_class/modern_cpp_30/smart_ptr/auto_scope.cpp
+index 920c604..85d60ae 100644
+--- a/learn_class/modern_cpp_30/smart_ptr/auto_scope.cpp
++++ b/learn_class/modern_cpp_30/smart_ptr/auto_scope.cpp
+@@ -1,12 +1,17 @@
+ //
+ // Created by light on 19-12-9.
+ //
+-#include "../RAII/shape.h"
+-template <typename T> class auto_ptr {
++// 本地说明（2026-09）：本文件的 my_auto_ptr / scoped_ptr 是**自己写的教学类**，
++// 用来演示"所有权转移"语义（对比 std::unique_ptr）。它**不是**已废弃的 std::my_auto_ptr。
++// 某些静态检查工具会把它误报为"使用了 std::my_auto_ptr"——那是误报，不要按建议替换，
++// 否则会删掉本文件的教学内容。
++//
++#include "../reference/shape.h"
++template <typename T> class my_auto_ptr {
+ public:
+-  explicit auto_ptr(T *ptr = nullptr) noexcept : ptr_(ptr) {}
++  explicit my_auto_ptr(T *ptr = nullptr) noexcept : ptr_(ptr) {}
+ 
+-  ~auto_ptr() noexcept { delete ptr_; }
++  ~my_auto_ptr() noexcept { delete ptr_; }
+ 
+   T &operator*() const noexcept { return *ptr_; }
+ 
+@@ -18,14 +23,14 @@ public:
+ 
+   // 拷贝构造,被复制放释放原来指针的所有权,交给复制方
+   // 始终只有一个对象管理一块空间
+-  auto_ptr(auto_ptr &other) noexcept { ptr_ = other.release(); }
++  my_auto_ptr(my_auto_ptr &other) noexcept { ptr_ = other.release(); }
+ 
+   // copy and swap  始终只有一个对象有管理这块空间的权限
+-  auto_ptr &operator=(auto_ptr &rhs) noexcept {
+-    //        auto_ptr tmp(rhs.release());
++  my_auto_ptr &operator=(my_auto_ptr &rhs) noexcept {
++    //        my_auto_ptr tmp(rhs.release());
+     //        tmp.swap(*this);
+     // s上述两行等价于下面一行
+-    auto_ptr(rhs.release()).swap(*this);
++    my_auto_ptr(rhs.release()).swap(*this);
+     return *this;
+   }
+ 
+@@ -36,7 +41,7 @@ public:
+     return ptr;
+   }
+ 
+-  void swap(auto_ptr &rhs) noexcept {
++  void swap(my_auto_ptr &rhs) noexcept {
+     using std::swap;
+     swap(ptr_, rhs.ptr_); // 转移指针所有权
+   }
+@@ -45,7 +50,7 @@ private:
+   T *ptr_;
+ };
+ 
+-template <typename T> void swap(auto_ptr<T> &lhs, auto_ptr<T> &rhs) noexcept {
++template <typename T> void swap(my_auto_ptr<T> &lhs, my_auto_ptr<T> &rhs) noexcept {
+   lhs.swap(rhs);
+ }
+ 
+@@ -84,13 +89,13 @@ void swap(scoped_ptr<T> &lhs, scoped_ptr<T> &rhs) noexcept {
+ }
+ 
+ int main() {
+-  auto_ptr<shape> ptr1{create_shape(shape_type::circle)};
+-  auto_ptr<shape> ptr2{ptr1};
++  my_auto_ptr<shape> ptr1{create_shape(shape_type::circle)};
++  my_auto_ptr<shape> ptr2{ptr1};
+   if (ptr1.get() == nullptr && ptr2.get())
+     cout << "拷贝构造：ptr1释放了所有权,ptr2获得了所有权" << endl;
+   ptr1 = ptr1;
+ 
+-  auto_ptr<shape> ptr3{create_shape(shape_type::rectangle)};
++  my_auto_ptr<shape> ptr3{create_shape(shape_type::rectangle)};
+   ptr1 = ptr3;
+   if (ptr3.get() == nullptr && ptr1.get())
+     cout << "赋值操作：始终只有一个对象管理一个区块!ptr3释放了所有权,"
+diff --git a/learn_class/modern_cpp_30/smart_ptr/shared_ptr.cpp b/learn_class/modern_cpp_30/smart_ptr/shared_ptr.cpp
+index a3f3787..6836aad 100644
+--- a/learn_class/modern_cpp_30/smart_ptr/shared_ptr.cpp
++++ b/learn_class/modern_cpp_30/smart_ptr/shared_ptr.cpp
+@@ -2,7 +2,7 @@
+ // Created by light on 19-12-12.
+ //
+ 
+-#include "../RAII/shape.h"
++#include "../reference/shape.h"
+ class shared_count {
+ public:
+   shared_count() : count_(1) {}
+diff --git a/learn_class/modern_cpp_30/smart_ptr/unique_ptr.cpp b/learn_class/modern_cpp_30/smart_ptr/unique_ptr.cpp
+index 658afe3..940c3f5 100644
+--- a/learn_class/modern_cpp_30/smart_ptr/unique_ptr.cpp
++++ b/learn_class/modern_cpp_30/smart_ptr/unique_ptr.cpp
+@@ -2,7 +2,7 @@
+ // Created by light on 19-12-12.
+ //
+ 
+-#include "../RAII/shape.h"
++#include "../reference/shape.h"
+ 
+ template <typename T> class unique_ptr {
+ public:
+diff --git a/learn_class/modern_cpp_30/smart_ptr/unique_ptr_U.cpp b/learn_class/modern_cpp_30/smart_ptr/unique_ptr_U.cpp
+index abe985a..6084b37 100644
+--- a/learn_class/modern_cpp_30/smart_ptr/unique_ptr_U.cpp
++++ b/learn_class/modern_cpp_30/smart_ptr/unique_ptr_U.cpp
+@@ -2,7 +2,7 @@
+ // Created by light on 19-12-12.
+ //
+ 
+-#include "../RAII/shape.h"
++#include "../reference/shape.h"
+ 
+ template <typename T> class unique_ptr {
+ public:
+diff --git a/basic_content/func_pointer/README.md b/basic_content/func_pointer/README.md
+new file mode 100644
+index 0000000..1ec2e2a
+--- /dev/null
++++ b/basic_content/func_pointer/README.md
+@@ -0,0 +1,27 @@
++# 函数指针那些事（补写导读）
++
++> 本目录原本**没有 README**（主 README 的链接因此是死链）。这里补一个最短导读；
++> 完整讲解见外部体系：`auxiliary/01` 的 **T5（分派三层）** 与 `auxiliary/22 §2`（重载决议）。
++
++## 一句话
++
++函数指针 = **把"函数"当值来传递**。它是 C 时代的接口机制，也是理解 C++ 三个现代替代品的起点：
++
++| 机制 | 相比函数指针的改进 | 代价 |
++| --- | --- | --- |
++| 函数指针 | 零开销、可跨 ABI（`extern "C"` 常用） | 无状态捕获；类型不安全（易错签名） |
++| `std::function` | 可捕获状态、类型安全 | 类型擦除 → 间接调用 + 可能堆分配 |
++| 函数对象 / lambda | 可捕获状态、**可内联**（零开销） | 每个 lambda 是不同类型（模板爆炸） |
++| 虚函数 | 运行期多态、与对象绑定 | vptr + 间接跳转（见 T5） |
++
++## 例子
++
++`func_pointer.cpp` 演示基本用法：声明 `返回值 (*名字)(参数表)`、赋值、通过指针调用。
++
++## 三个坑
++
++```text
++① 签名必须完全一致（含 const/引用/返回类型），没有隐式转换
++② 成员函数指针 ≠ 函数指针（前者需要对象：`(obj.*pmf)()`）
++③ 空函数指针调用 = UB（判空，或用 std::function 的 bool 转换）
++```
