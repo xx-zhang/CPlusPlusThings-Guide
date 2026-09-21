@@ -13,7 +13,7 @@
 | 交付仓库 | `github.com/xx-zhang/CPlusPlusThings-Guide`（分支 `main`） | ✅ 已推送 |
 | Obsidian vault（WSL 侧，内容权威） | `~/CPlusPlusThings-Guide`（Linux Obsidian 已注册，id `ef320ff5bc7fdb90`） | ✅ 运行中 |
 | Obsidian vault（Windows 宿主镜像） | `D:\Obsidian\CPlusPlusThings-Guide`（已注册 id `c9a1f3e2b7d40815`；WSL 内 `/mnt/d/...`；同步器 `~/bin/vault-sync`） | ✅ 已建 |
-| 文档全集 | `auxiliary/00-31`（**32 篇**）+ `auxiliary/README` + `lessons/`（01 + `_TEMPLATE`）+ 根 `README`/`AGENTS`/`session-handoff`/`TODO` + **`check.sh`** | ✅ **39 个 md + 1 脚本**（`find . -name "*.md" -not -path "./.git/*"` = 39） |
+| 文档全集 | `auxiliary/00-31`（**32 篇**）+ `auxiliary/README` + `lessons/`（01 + `_TEMPLATE`）+ 根 `README`/`AGENTS`/`session-handoff`/`TODO` + **`check.sh`** | ✅ **40 个 md + 1 脚本**（`find . -name "*.md" -not -path "./.git/*"` = 39） |
 | 代码源副本 | `/home/user/CPlusPlusThings/auxiliary`（上游 Light-City/CPlusPlusThings 的克隆工作区） | ✅ 同步源 |
 
 **文档矩阵**（32 篇）：

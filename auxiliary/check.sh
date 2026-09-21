@@ -227,6 +227,34 @@ print(f"  \033[32m✅\033[0m 交接文档声称的 {claimed} 个 md 与实际一
 PY3
 then FAIL=$((FAIL + 1)); fi
 
+section "SSOT ③：确定性实测回归 —— 非递归锁 + 锁内调未知代码 + 回调重入 ⟹ 必然自死锁（lessons/02）"
+cat > "$TMP/dl.cpp" <<'EOF'
+#include <mutex>
+#include <functional>
+struct M {
+  std::mutex m_;
+  std::function<void()> cb_;
+  void set_cb(std::function<void()> cb) { cb_ = std::move(cb); }
+  void execute_head_timer() { std::unique_lock<std::mutex> l(m_); if (cb_) cb_(); }
+  void add_timer() { std::unique_lock<std::mutex> l(m_); }
+};
+int main() {
+  M m;
+  m.set_cb([&m] { m.add_timer(); });
+  m.execute_head_timer();
+}
+EOF
+if g++ -std=c++17 -O0 -pthread "$TMP/dl.cpp" -o "$TMP/dl" 2>/dev/null; then
+  timeout 10 "$TMP/dl" >/dev/null 2>&1
+  if [ $? -eq 124 ]; then
+    ok "非递归锁 + 锁内调用 + 回调重入 → 挂死（「线程安全≠可重入」结论成立）"
+  else
+    bad "未挂死——该结论在本机不成立，需重测后修正 lessons/02 与 17"
+  fi
+else
+  bad "自死锁回归程序编译失败"
+fi
+
 echo
 if [ "$FAIL" -eq 0 ]; then
   printf "\033[32m═══ 全部通过（%d 项检查）═══\033[0m\n" "$TOTAL"
