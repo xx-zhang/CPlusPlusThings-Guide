@@ -206,6 +206,27 @@ print(f"  \033[32m✅\033[0m {len(rows)} 行的意图均挂靠到 D/元原则")
 PY2
 then FAIL=$((FAIL + 1)); fi
 
+section "一致性：会话交接文档声称的「md 总数」必须等于真实文件数（防重启文档失真）"
+if ! python3 - <<'PY3'
+import re, sys, glob
+try:
+    txt = open('../session-handoff.md', encoding='utf-8').read()
+except OSError:
+    print("  \033[33m⚠️\033[0m  ../session-handoff.md 不存在，跳过（在 guide 仓库内运行才校验）")
+    sys.exit(0)
+m = re.search(r'✅\s*\*\*(\d+) 个 md', txt)
+if not m:
+    print("  \033[31m❌\033[0m 交接文档未声明「N 个 md」总数，无法机器校验")
+    sys.exit(1)
+claimed = int(m.group(1))
+real = len([p for p in glob.glob('../**/*.md', recursive=True) if '/.git/' not in p])
+if claimed != real:
+    print(f"  \033[31m❌\033[0m 交接文档声称 {claimed} 个 md，实际 {real} 个——重启文档已失真，请更新 §1")
+    sys.exit(1)
+print(f"  \033[32m✅\033[0m 交接文档声称的 {claimed} 个 md 与实际一致")
+PY3
+then FAIL=$((FAIL + 1)); fi
+
 echo
 if [ "$FAIL" -eq 0 ]; then
   printf "\033[32m═══ 全部通过（%d 项检查）═══\033[0m\n" "$TOTAL"
